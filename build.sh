@@ -6,7 +6,7 @@ BASE_DIR=$(pwd)
 
 https_proxy=211.87.236.31:7890
 http_proxy=211.87.236.31:7890
-git config --global http.postBuffer 2147483648
+git config http.postBuffer 5242880000
 sudo yum install pkg-config btrfs-progs gcc
 
 GO_VERSION="1.22.5"
