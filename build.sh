@@ -114,3 +114,43 @@ cd ${TEMP_DIR}
 go mod tidy
 go build -buildmode=pie -o "/usr/local/bin/docker" "${TEMP_DIR}/cli/cmd/docker"
  
+cat > /etc/systemd/system/docker.service << EOF
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network-online.target firewalld.service
+Wants=network-online.target
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/dockerd
+ExecReload=/bin/kill -s HUP \$MAINPID
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+TimeoutStartSec=0
+Delegate=yes
+KillMode=process
+Restart=on-failure
+StartLimitBurst=3
+StartLimitInterval=60s
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+
+chmod a+x /etc/systemd/system/docker.service
+
+
+mkdir -p /etc/docker
+
+cat > /etc/docker/daemon.json << EOF
+{
+    "data-root": "/home/docker_data",
+    "log-driver": "json-file",
+    "log-opts": {"max-size": "500m", "max-file": "3"}
+}
+EOF
+
+systemctl start docker
