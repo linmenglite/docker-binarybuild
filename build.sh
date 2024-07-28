@@ -3,8 +3,11 @@
 set -e
 
 BASE_DIR=$(pwd)
-#export https_proxy=211.87.236.31:7890
-#export http_proxy=211.87.236.31:7890
+
+https_proxy=211.87.236.31:7890
+http_proxy=211.87.236.31:7890
+git config --global http.postBuffer 2147483648
+sudo yum install pkg-config btrfs-progs gcc
 
 GO_VERSION="1.22.5"
 DOCKERCLI_VERSION="17.06"
