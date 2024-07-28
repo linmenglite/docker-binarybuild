@@ -9,9 +9,9 @@ BASE_DIR=$(pwd)
 GO_VERSION="1.22.5"
 DOCKERCLI_VERSION="17.06"
 GO_BASE_URL="https://golang.google.cn/dl"
-MOBY_REPO_URL="https://github.com/moby/moby.git"
+MOBY_REPO_URL="https://gitee.com/linmenglite/moby.git"
 MOBY_REPO_DIR="src/github.com/moby"
-DOCKER_CLI_REPO_URL="https://github.com/docker-archive/docker-ce.git"
+DOCKER_CLI_REPO_URL="https://gitee.com/linmenglite/docker-ce.git"
 DOCKER_CLI_REPO_DIR="src/github.com/docker-ce"
 
 ARCH=$(uname -m)
