@@ -83,7 +83,7 @@ DOCKER_GITCOMMIT=1 ./hack/make.sh binary
 my_array=("containerd" "rootlesskit" "runc" "tini") 
 for item in "${my_array[@]}"  
 do  
-    ./hack/dockerfile/install "$item"  
+    ./hack/dockerfile/install/install.sh "$item"  
 done
 
 cp ${MOBY_REPO_PATH}/bundles/binary-daemon/* /usr/local/bin
