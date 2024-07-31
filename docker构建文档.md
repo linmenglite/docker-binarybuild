@@ -1,19 +1,20 @@
-#!/bin/bash
-
-set -e
-
-BASE_DIR=$(pwd)
-
-sudo yum install pkg-config btrfs-progs gcc
-
-GO_VERSION="1.22.5"
-DOCKER_VERSION="27.1.1"
-GO_BASE_URL="https://golang.google.cn/dl"
-MOBY_REPO_URL="https://gitee.com/linmenglite/moby.git"
-MOBY_REPO_DIR="src/github.com/moby"
-DOCKER_CLI_REPO_URL="https://gitee.com/linmenglite/cli.git"
-DOCKER_CLI_REPO_DIR="src/github.com/docker/cli"
-
+### 构建环境
+| 硬件信息 | SG2042 |
+| --- | --- |
+| 架构 | RISC-V64 |
+| 操作系统 | openEuler 24.03 (LTS) |
+| GCC 版本 | 7.3.0 |
+| G++ 版本 | 7.3.0 |
+| go 版本| 1.22.5 |
+| btrfs-progs版本 | 6.6.3 |
+| pkg-config版本 | 1.9.5 | 
+| Docker 版本 | 27.1.1 |
+### 构建过程
+#### 依赖安装
+##### 安装go
+安装go 1.22.5，先确定编译平台，然后下载对应的go版本，检查是否安装成功，并设置环境变量
+```shell
+#确定go安装版本
 ARCH=$(uname -m)
 
 case "$ARCH" in
@@ -54,13 +55,19 @@ fi
 
 export PATH=${BASE_DIR}/go${GO_VERSION}/bin:$PATH
 
+#检查是否安装成功
 go version
 
+#配置环境变量
 export GOPROXY=https://proxy.golang.org
 export GOTOOLCHAIN=local
 export GOPATH=${BASE_DIR}/gopath
 export GOROOT=${BASE_DIR}/go${GO_VERSION}
 
+```
+##### 安装 containerd rootlesskit runc tini
+先从gitee上拉取moby源码，然后分别安装containerd rootlesskit runc tini
+```shell
 mkdir -p ${GOPATH}
 
 MOBY_REPO_PATH="${GOPATH}/${MOBY_REPO_DIR}"
@@ -77,9 +84,6 @@ else
 fi
 
 cd ${MOBY_REPO_PATH}
-git checkout tags/v${DOCKERCLI_VERSION}
-
-VERSION=${DOCKER_VERSION} DOCKER_GITCOMMIT=1 ./hack/make.sh binary
 
 my_array=("containerd" "rootlesskit" "runc" "tini") 
 for item in "${my_array[@]}"  
@@ -87,8 +91,19 @@ do
     ./hack/dockerfile/install/install.sh "$item"  
 done
 
-cp ${MOBY_REPO_PATH}/bundles/binary-daemon/* /usr/local/bin
+```
+#### 编译docker
+##### 安装 docker 守护进程
+编译完成 dockerd 和 docker-proxy 文件后，将其放置在/usr/local/bin目录中
+```shell
+cd ${MOBY_REPO_PATH}
 
+VERSION=${DOCKER_VERSION} DOCKER_GITCOMMIT=1 ./hack/make.sh binary
+cp ${MOBY_REPO_PATH}/bundles/binary-daemon/* /usr/local/bin
+```
+##### 安装 dockercli 
+先从gitee上拉取cli源码，然后进行编译，最后将二进制文件放在/usr/local/bin 目录下
+```shell
 DOCKER_CLI_REPO_PATH="${GOPATH}/${DOCKER_CLI_REPO_DIR}"
 
 if [ ! -d "${DOCKER_CLI_REPO_PATH}" ]; then
@@ -104,10 +119,13 @@ fi
 
 cd ${DOCKER_CLI_REPO_PATH}
 git checkout tags/v${DOCKERCLI_VERSION}
-make install
+make 
 
 cp ${DOCKER_CLI_REPO_PATH}/build/* /usr/local/bin
- 
+```
+#### 配置文件
+##### 配置 docker.service 文件
+```shell
 cat > /etc/systemd/system/docker.service << EOF
 [Unit]
 Description=Docker Application Container Engine
@@ -133,12 +151,12 @@ StartLimitInterval=60s
 WantedBy=multi-user.target
 EOF
 
-
+#赋予执行权限
 chmod a+x /etc/systemd/system/docker.service
+```
 
-
-mkdir -p /etc/docker
-
+##### 配置 daemon.json 文件
+```shell
 cat > /etc/docker/daemon.json << EOF
 {
     "data-root": "/home/docker_data",
@@ -146,5 +164,4 @@ cat > /etc/docker/daemon.json << EOF
     "log-opts": {"max-size": "500m", "max-file": "3"}
 }
 EOF
-
-systemctl start docker
+```
