@@ -60,6 +60,8 @@ git clone https://github.com/moby/moby.git $GOPATH/src/github.com/moby
 
 
 cd $GOPATH/src/github.com/moby
+git checkout tags/v27.1.1
+git config --global --add safe.directory $GOPATH/src/github.com/moby
  
 ./hack/dockerfile/install/install.sh containerd  
 ./hack/dockerfile/install/install.sh rootlesskit
@@ -72,7 +74,6 @@ cd $GOPATH/src/github.com/moby
 编译完成 dockerd 和 docker-proxy 文件后，将其放置在/usr/local/bin目录中
 ```shell
 cd $GOPATH/src/github.com/moby
-git checkout tags/v27.1.1
 
 VERSION=27.1.1 DOCKER_GITCOMMIT=1 ./hack/make.sh binary
 cp bundles/binary-daemon/* /usr/local/bin
@@ -84,6 +85,7 @@ cp bundles/binary-daemon/* /usr/local/bin
     git clone https://github.com/docker/cli.git $GOPATH/src/github.com/docker/cli
 
 cd $GOPATH/src/github.com/docker/cli
+git config --global --add safe.directory $PATH/src/github.com/docker/cli
 git checkout tags/v27.1.1
 make 
 
