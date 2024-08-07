@@ -77,7 +77,9 @@ else
 fi
 
 cd ${MOBY_REPO_PATH}
+git config --global --add safe.directory ${GOPATH}/${MOBY_REPO_PATH}
 git checkout tags/v${DOCKERCLI_VERSION}
+
 
 VERSION=${DOCKER_VERSION} DOCKER_GITCOMMIT=1 ./hack/make.sh binary
 
@@ -103,6 +105,7 @@ else
 fi
 
 cd ${DOCKER_CLI_REPO_PATH}
+git config --global --add safe.directory ${GOPATH}/${DOCKER_CLI_REPO_PATH}
 git checkout tags/v${DOCKERCLI_VERSION}
 make install
 
