@@ -9,9 +9,9 @@ sudo yum install pkg-config btrfs-progs gcc
 GO_VERSION="1.22.5"
 DOCKER_VERSION="27.1.1"
 GO_BASE_URL="https://golang.google.cn/dl"
-MOBY_REPO_URL="https://gitee.com/linmenglite/moby.git"
+MOBY_REPO_URL="https://github.com/moby/moby.git"
 MOBY_REPO_DIR="src/github.com/moby"
-DOCKER_CLI_REPO_URL="https://gitee.com/linmenglite/cli.git"
+DOCKER_CLI_REPO_URL="https://github.com/docker/cli.git"
 DOCKER_CLI_REPO_DIR="src/github.com/docker/cli"
 
 ARCH=$(uname -m)
